@@ -91,3 +91,7 @@ public
 # VS Code directories
 .vscode/
 .history/
+
+# General Block
+routes/site/*
+routes/input/*
