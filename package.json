@@ -1,0 +1,20 @@
+{
+  "name": "mddeployment",
+  "version": "0.0.1",
+  "description": "Deploy Markdown Files with ease",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "author": "bedlessdeus",
+  "license": "SEE LICENSE IN LICENSE",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
