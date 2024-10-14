@@ -5,54 +5,84 @@ const translationkey = JSON.parse(fs.readFileSync('./routes/translate/transkey.j
 
 const translationMiddleWare = async (content) => {
     content = await scrub(content, [
+        handleEmpty,
         handleLineBr1, handleLineBr2,
         handleNormalText,
         handleBold,
-        h5Scrubber, h4Scrubber, h3Scrubber, h2Scrubber, h1Scrubber,
-        headInject]);
+        h5Scrubber, h4Scrubber, h3Scrubber, h2Scrubber, h1Scrubber
+    ]);
+    content = headInject(content);
     console.log("Finished Translation Middleware");
     return content;
 }
 
 const scrub = async(content, scrubbers) => {
     if (Array.isArray(scrubbers)) {
-        for (const scrubber of scrubbers) {
-            content = await scrubber(content);
+        const lines = content.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            for (const scrubber of scrubbers) {
+                lines[i] = await scrubber(lines[i]);
+            }
         }
+        content = lines.join('\n');
     } else {
-        content = await scrubbers(content);
+        const lines = content.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            lines[i] = await scrubbers(lines[i]);
+        }
+        content = lines.join('\n');
     }
     return content;
 }
 
 const headInject = async(content) => {
     let keyed = translationkey['MASTER'];
-    return `<body style='${keyed.style}'>` + content + `</body>`;
+    return `<body style='${keyed.style}'>\n${content}\n</body>`;
 }
 
 const h1Scrubber = async(content) => {
-    let keyed = translationkey['#'];
-    return content.replaceAll('#', keyed.oTag.replace('%style%', keyed.style));
+    let key = '#';
+    let keyed = translationkey[key];
+    if(!content.startsWith(key + " ")) return content;
+    return content.replace(/^(#) (.*)/, (match, p1, p2) => {
+        return `${keyed.oTag.replace("%style%", keyed.style)}${p2}${keyed.cTag}`;
+    });
 }
 
 const h2Scrubber = async(content) => {
-    let keyed = translationkey['##'];
-    return content.replaceAll('##', keyed.oTag.replace('%style%', keyed.style));
+    let key = '##';
+    let keyed = translationkey[key];
+    if(!content.startsWith(key + " ")) return content;
+    return content.replace(/^(##) (.*)/, (match, p1, p2) => {
+        return `${keyed.oTag.replace("%style%", keyed.style)}${p2}${keyed.cTag}`;
+    });
 }
 
 const h3Scrubber = async(content) => {
-    let keyed = translationkey['###'];
-    return content.replaceAll('###', keyed.oTag.replace('%style%', keyed.style));
+    let key = '###';
+    let keyed = translationkey[key];
+    if(!content.startsWith(key + " ")) return content;
+    return content.replace(/^(###) (.*)/, (match, p1, p2) => {
+        return `${keyed.oTag.replace("%style%", keyed.style)}${p2}${keyed.cTag}`;
+    });
 }
 
 const h4Scrubber = async(content) => {
-    let keyed = translationkey['####'];
-    return content.replaceAll('####', keyed.oTag.replace('%style%', keyed.style));
+    let key = '####';
+    let keyed = translationkey[key];
+    if(!content.startsWith(key + " ")) return content;
+    return content.replace(/^(####) (.*)/, (match, p1, p2) => {
+        return `${keyed.oTag.replace("%style%", keyed.style)}${p2}${keyed.cTag}`;
+    });
 }
 
 const h5Scrubber = async(content) => {
-    let keyed = translationkey['#####'];
-    return content.replaceAll('#####', keyed.oTag.replace('%style%', keyed.style));
+    let key = '#####';
+    let keyed = translationkey[key];
+    if(!content.startsWith(key + " ")) return content;
+    return content.replace(/^(#####) (.*)/, (match, p1, p2) => {
+        return `${keyed.oTag.replace("%style%", keyed.style)}${p2}${keyed.cTag}`;
+    });
 }
 
 const handleLineBr1 = async(content) => {
@@ -70,13 +100,18 @@ const handleLineBr2 = async(content) => {
 }
 
 const handleNormalText = async(content) => {
-    const lines = content.split('\n');
-    content = lines.map(line => {
-        if (!line.startsWith('#')) {
-            return `<p>${line}</p>`;
-        }
-        return line;
-    }).join('\n');
+    let key = '';
+    let keyed = translationkey[key];
+    if(!content.startsWith(key + " ")) return content;
+    return content.replace(/^() (.*)/, (match, p1, p2) => {
+        return `${keyed.oTag.replace("%style%", keyed.style)}${p2}${keyed.cTag}`;
+    });
+}
+
+const handleEmpty = async(content) => {
+    if(!content) {
+        return '<br>';
+    }
     return content;
 }
 
