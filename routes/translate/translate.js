@@ -11,7 +11,7 @@ const translationMiddleWare = async (content) => {
         handleBold,
         h5Scrubber, h4Scrubber, h3Scrubber, h2Scrubber, h1Scrubber
     ]);
-    content = headInject(content);
+    content = await headInject(content);
     console.log("Finished Translation Middleware");
     return content;
 }
